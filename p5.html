@@ -1,0 +1,50 @@
+<script src="https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/p5.js"></script>
+
+<script>
+    const screen_width = 800
+    const screen_height = 600
+    const cell_size = 10
+    const row_count = screen_height / cell_size
+    const col_count = screen_width / cell_size
+
+    const drops = []
+    const words = [1, 3, 2, 3, 2, 1, 4, 2, 3, 2]
+    let current_word_index = 0;
+
+    function create_drop(emotion) {
+        const drop = {
+            x: col_count / 2,
+            y: 0,
+            emotion: emotion,
+        }
+        drops.push(drop)
+    }
+
+    function mousePressed() {
+        create_drop(words[current_word_index])
+        current_word_index += 1
+    }
+
+    function setup() {
+        createCanvas(screen_width, screen_height);
+    }
+
+    function draw() {
+        background(0);
+
+        for (const drop of drops) {
+            if (drop.emotion == 1) {
+                fill(255, 0, 0)
+            } else if (drop.emotion == 2) {
+                fill(255, 255, 0)
+            } else if (drop.emotion == 3) {
+                fill(255, 0, 255)
+            } else if (drop.emotion == 4) {
+                fill(0, 0, 255)
+            }
+            rect(drop.x * cell_size, drop.y * cell_size, cell_size, cell_size)
+
+            drop.y += 0.1
+        }
+    }
+</script>
