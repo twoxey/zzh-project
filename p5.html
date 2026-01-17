@@ -1,4 +1,5 @@
 <script src="https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/p5.js"></script>
+<script src="sentiment_data.js"></script>
 
 <script>
     const screen_width = 800
@@ -21,7 +22,19 @@
     }
 
     function mousePressed() {
-        create_drop(words[current_word_index])
+        // 第2行导入的sentiment_data.js文件当中有一个名为sentiment_data的数组，
+        // 其中保存了根据文本文件生成的情绪数据，我们改为从这个数组当中读取数据
+        const item = sentiment_data[current_word_index]
+
+        // 数组的每一项"item"都有两个属性:"word"和"output"，其中word是这一项所对应的
+        // 词语，output是另外一个数组，其中每一项是情绪识别的结果（现在每一个词语只有
+        // 一个对应的结果，但未来有可能会修改代码输出多个结构）
+        // 这里先读取结果中的第一项
+        const output = item.output[0]
+
+        // 结果的每一项都有两个属性:"label"和"score"，label是对应的不同情绪，score是
+        // 这项结果的分数，我们这里使用label作为参数传给create_drop()来创建水滴
+        create_drop(output.label)
         current_word_index += 1
     }
 
@@ -32,14 +45,17 @@
     function draw() {
         background(0);
 
+        // 这里使用水滴绘图的代码需要改成我们创建时使用的label，而不是之前的数字
         for (const drop of drops) {
-            if (drop.emotion == 1) {
+            if (drop.emotion == "Neutral") {
                 fill(255, 0, 0)
-            } else if (drop.emotion == 2) {
+            } else if (drop.emotion == "Positive") {
                 fill(255, 255, 0)
-            } else if (drop.emotion == 3) {
+            } else if (drop.emotion == "Very Positive") {
                 fill(255, 0, 255)
-            } else if (drop.emotion == 4) {
+            } else if (drop.emotion == "Negative") {
+                fill(0, 255, 255)
+            } else if (drop.emotion == "Very Negative") {
                 fill(0, 0, 255)
             }
             rect(drop.x * cell_size, drop.y * cell_size, cell_size, cell_size)
