@@ -7,15 +7,18 @@
     const cell_size = 10
     const row_count = screen_height / cell_size
     const col_count = screen_width / cell_size
+    // 创建一个数组记录现在画面上所有格子的状态
+    let cells = Array(row_count * col_count).fill(-1)
 
     const drops = []
     const words = [1, 3, 2, 3, 2, 1, 4, 2, 3, 2]
     let current_word_index = 0;
 
     function create_drop(emotion) {
+        // 使用鼠标的位置生成新的水滴
         const drop = {
-            x: col_count / 2,
-            y: 0,
+            x: mouseX / cell_size,
+            y: mouseY / cell_size,
             emotion: emotion,
         }
         drops.push(drop)
@@ -45,8 +48,14 @@
     function draw() {
         background(0);
 
-        // 这里使用水滴绘图的代码需要改成我们创建时使用的label，而不是之前的数字
+        fill(255, 255, 255);
+        rect(mouseX, mouseY, cell_size, cell_size)
+
+        // 创建新的格子数据的数组，用来更新
+        const new_cells = Array(row_count * col_count).fill(-1)
+        let i = 0;
         for (const drop of drops) {
+            // 这里使用水滴绘图的代码需要改成我们创建时使用的label，而不是之前的数字
             if (drop.emotion == "Neutral") {
                 fill(255, 0, 0)
             } else if (drop.emotion == "Positive") {
@@ -60,7 +69,48 @@
             }
             rect(drop.x * cell_size, drop.y * cell_size, cell_size, cell_size)
 
-            drop.y += 0.1
+            // 获取水滴在格子的位置
+            const cellx = cell_pos(drop.x);
+            const celly = cell_pos(drop.y);
+            // noFill();
+            // stroke(255);
+            // rect(cellx * cell_size, celly * cell_size, cell_size, cell_size)
+
+            // 获取下方和左下，右下格子的状态
+            const down = cells_get(cellx, celly + 1)
+            const downl = cells_get(cellx - 1, celly + 1)
+            const downr = cells_get(cellx + 1, celly + 1)
+
+            if (down == -1) {
+                // 如果下方格子空着，下落
+                drop.y += 0.3
+            } else if (downl == -1) {
+                // 否则如果左侧格子空着，向左侧移动
+                drop.x -= 0.1
+            } else if (downr == -1) {
+                // 否则如果有侧格子空着，向右侧移动
+                drop.x += 0.1
+            }
+
+            const new_cellx = cell_pos(drop.x);
+            const new_celly = cell_pos(drop.y);
+            new_cells[new_celly * col_count + new_cellx] = i;
+
+            ++i;
         }
+        // 使用新的格子状态更新之前的状态
+        cells = new_cells;
+    }
+
+    function cell_pos(val) {
+        return Math.floor(val)
+    }
+
+    function cells_get(cellx, celly) {
+        if (cellx < 0) return -2;
+        if (cellx > col_count - 1) return -2;
+        if (celly < 0) return -2;
+        if (celly > row_count -1) return -2;
+        return cells[celly * col_count + cellx];
     }
 </script>
